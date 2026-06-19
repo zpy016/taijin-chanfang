@@ -6,8 +6,17 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="theme-color" content="#F9F6F0">
+<meta name="version" content="数字禅房v6">
+<meta name="build-note" content="响应式双版本：PC完整布局 + 移动端APP体验">
 <title>太晋先生名言实录 · 数字禅房</title>
 <style>
+/* ============================================================
+   数字禅房 v6 — 响应式双版本
+   PC端 (>=769px): 完整PC布局  |  移动端 (<=768px): APP风格
+   ============================================================ */
+
+/* ===== PC版CSS (v5) ===== */
+
 /* 中国大陆可访问：移除被墙的 Google Fonts，改用 iOS / 系统自带字体栈
    iPhone 上 PingFang SC ≈ Noto Sans SC，Songti SC ≈ Noto Serif SC，效果接近且零网络延迟 */
 
@@ -253,6 +262,10 @@ body.editing-main #contentArea:focus-visible { outline: none; }
 }
 body.night .modal-btn.primary { color: #1A1D23; }
 
+/* Mobile-only sheet affordances (hidden on desktop) */
+.sheet-handle { display: none; }
+.panel-close { display: none; }
+
 /* ========== MOBILE RESPONSIVE (WeChat/iPhone) ========== */
 @media (max-width: 768px) {
   :root { --nav-h: 48px; --leftbar: 0; --leftpanel: 0; --rightbar: 0; }
@@ -277,7 +290,13 @@ body.night .modal-btn.primary { color: #1A1D23; }
     padding: 12px 0 80px 0;
   }
   #leftPanel.open { transform: translateY(0); }
-  #leftPanel .panel-header { padding: 0 16px 10px; font-size: 0.95rem; }
+  /* 底部抽屉：顶部拖拽指示条 + 标题居中 + 关闭按钮 */
+  .sheet-handle { display: block; width: 36px; height: 4px; border-radius: 2px; background: var(--border); margin: 8px auto 2px; cursor: grab; }
+  #leftPanel .panel-header { padding: 6px 48px 10px; font-size: 1rem; justify-content: center; position: relative; }
+  #leftPanel .panel-header .ph-title { text-align: center; }
+  .panel-close { display: inline-flex; position: absolute; right: 10px; top: 50%; transform: translateY(-50%); width: 34px; height: 34px; min-width: 34px; border: none; background: transparent; color: var(--muted); cursor: pointer; align-items: center; justify-content: center; border-radius: 50%; -webkit-tap-highlight-color: transparent; transition: background 0.15s; }
+  .panel-close:active { background: var(--accent-glow); color: var(--accent); }
+  .panel-close svg { width: 18px; height: 18px; }
   #leftPanel .panel-block { padding: 10px 16px; }
   #leftPanel .panel-block .pb-title { font-size: 0.9rem; }
   #leftPanel .panel-block .pb-sub { font-size: 0.8rem; }
@@ -308,17 +327,17 @@ body.night .modal-btn.primary { color: #1A1D23; }
   .poster-title-wrap { margin-bottom: 16px; }
   .poster-title { font-size: 1.1rem; }
   .poster-subtitle { font-size: 0.75rem; }
-  .poster-flow { 
-    overflow-x: auto; gap: 8px; 
-    padding: 4px 0 12px 0; 
-    justify-content: flex-start; 
+  .poster-flow {
+    overflow-x: auto; gap: 12px;
+    padding: 4px 0 12px 0;
+    justify-content: flex-start;
     -webkit-overflow-scrolling: touch;
     scrollbar-width: none;
   }
   .poster-flow::-webkit-scrollbar { display: none; }
-  .poster-card { 
-    flex: 0 0 125px; min-width: 125px; max-width: 125px; 
-    padding: 14px 8px; 
+  .poster-card {
+    flex: 0 0 140px; min-width: 140px; max-width: 140px;
+    padding: 14px 8px;
   }
   .poster-card .card-icon { width: 36px; height: 36px; }
   .poster-card .card-icon svg { width: 20px; height: 20px; }
@@ -376,9 +395,901 @@ body.night .modal-btn.primary { color: #1A1D23; }
 .panel-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.35); z-index: 88; }
 .panel-overlay.active { display: block; }
 
+
+
+/* ===== 移动端CSS (v6) ===== */
+#mobile-view { display: none; }
+
+/* ===== 设计系统 ===== */
+:root {
+  --bg: #FFFBEB;
+  --text: #0F172A;
+  --muted: #78716C;
+  --accent: #92400E;
+  --accent-light: #FEF3C7;
+  --accent-glow: rgba(146,64,14,0.06);
+  --card: #FFFFFF;
+  --border: #E7E5E4;
+  --shadow: 0 1px 3px rgba(0,0,0,0.04);
+  --serif: 'Songti SC', 'STSong', 'SimSun', 'Source Han Serif SC', 'Noto Serif CJK SC', serif;
+  --sans: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Helvetica Neue', 'Microsoft YaHei', sans-serif;
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --nav-h: 56px;
+  --tab-h: 83px;
+}
+
+body.night {
+  --bg: #1A1D23;
+  --text: #E8E2D9;
+  --muted: #9A9488;
+  --accent: #C9A87C;
+  --accent-light: #3A3428;
+  --accent-glow: rgba(201,168,124,0.08);
+  --card: #232830;
+  --border: #3A3428;
+  --shadow: 0 1px 3px rgba(0,0,0,0.2);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: var(--sans);
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.75;
+  font-size: 15px;
+  transition: background 0.4s, color 0.4s;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ===== 应用容器 ===== */
+#app {
+  max-width: 430px;
+  margin: 0 auto;
+  min-height: 100vh;
+  position: relative;
+  background: var(--bg);
+  transition: background 0.4s;
+}
+
+/* ===== 屏幕管理 ===== */
+.m-screen {
+  display: none;
+  min-height: 100vh;
+  padding-bottom: calc(var(--tab-h) + var(--safe-bottom) + 20px);
+  animation: fadeIn 0.3s ease;
+}
+.m-screen.m-active { display: block; }
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ===== 状态栏 ===== */
+.m-status-bar {
+  height: calc(44px + var(--safe-top));
+  padding-top: var(--safe-top);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-left: 24px;
+  padding-right: 24px;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.m-status-icons {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* ===== 导航栏 ===== */
+.m-nav-header {
+  height: var(--nav-h);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 0 20px;
+  position: sticky;
+  top: 0;
+  background: rgba(255,251,235,0.92);
+  backdrop-filter: blur(14px) saturate(1.2);
+  -webkit-backdrop-filter: blur(14px) saturate(1.2);
+  z-index: 100;
+  transition: background 0.4s;
+}
+
+body.night .m-nav-header {
+  background: rgba(26,29,35,0.92);
+}
+
+.m-nav-back {
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: var(--text);
+}
+
+.m-nav-title {
+  font-family: var(--serif);
+  font-size: 17px;
+  font-weight: 600;
+  color: var(--text);
+  flex: 1;
+}
+
+.m-nav-action {
+  font-size: 15px;
+  color: var(--accent);
+  cursor: pointer;
+  font-weight: 500;
+}
+
+/* ===== 内容区 ===== */
+.m-content-area {
+  padding: 8px 20px 20px;
+}
+
+.m-content-area > * + * {
+  margin-top: 24px;
+}
+
+/* ===== 字体系统 ===== */
+.m-serif { font-family: var(--serif); }
+
+.m-text-title {
+  font-family: var(--serif);
+  font-size: 28px;
+  font-weight: 600;
+  line-height: 1.3;
+  color: var(--text);
+}
+
+.m-text-subtitle {
+  font-size: 13px;
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+.m-text-heading {
+  font-family: var(--serif);
+  font-size: 26px;
+  font-weight: 600;
+  line-height: 1.3;
+  color: var(--text);
+}
+
+.m-text-body {
+  font-size: 15px;
+  line-height: 1.75;
+  color: var(--text);
+}
+
+.m-text-caption {
+  font-size: 13px;
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+.m-text-quote {
+  font-family: var(--serif);
+  font-size: 18px;
+  font-weight: 600;
+  line-height: 1.8;
+  color: var(--accent);
+  text-align: center;
+}
+
+/* ===== 装饰数字 ===== */
+.m-deco-number {
+  font-family: var(--serif);
+  font-size: 64px;
+  font-weight: 600;
+  color: var(--accent);
+  opacity: 0.08;
+  text-align: center;
+  line-height: 1;
+  margin: 0;
+}
+
+/* ===== 核心引言区 ===== */
+.m-hero-quote {
+  text-align: center;
+  padding: 36px 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+}
+
+.m-hero-quote-text {
+  font-family: var(--serif);
+  font-size: 22px;
+  font-weight: 600;
+  line-height: 1.6;
+  color: var(--accent);
+}
+
+.m-hero-quote-attr {
+  font-size: 13px;
+  color: var(--muted);
+}
+
+/* ===== 卡片系统 ===== */
+.m-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  padding: 20px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.m-card:active {
+  transform: scale(0.98);
+  opacity: 0.9;
+}
+
+.m-card-num {
+  font-family: var(--serif);
+  font-size: 36px;
+  font-weight: 600;
+  color: var(--accent);
+  opacity: 0.3;
+  line-height: 1;
+  min-width: 36px;
+  text-align: center;
+}
+
+.m-card-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.m-card-title {
+  font-family: var(--serif);
+  font-size: 17px;
+  font-weight: 600;
+  color: var(--text);
+  line-height: 1.3;
+}
+
+.m-card-sub {
+  font-size: 13px;
+  color: var(--muted);
+  line-height: 1.4;
+}
+
+/* ===== 概念卡片 ===== */
+.m-concept-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.m-concept-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  background: var(--accent);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 500;
+  border-radius: 12px;
+  width: fit-content;
+}
+
+.m-concept-title {
+  font-family: var(--serif);
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.m-concept-quote {
+  font-family: var(--serif);
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--accent);
+  line-height: 1.75;
+}
+
+/* ===== 经文引言 ===== */
+.m-scripture-block {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  padding: 28px 20px;
+}
+
+.m-scripture-line {
+  width: 40px;
+  height: 1px;
+  background: var(--accent);
+  opacity: 0.5;
+}
+
+/* ===== 标签切换 ===== */
+.m-tab-bar {
+  position: fixed;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100%;
+  max-width: 430px;
+  height: calc(var(--tab-h) + var(--safe-bottom));
+  padding-bottom: var(--safe-bottom);
+  background: var(--card);
+  border-top: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  z-index: 1000;
+  transition: all 0.4s;
+}
+
+.m-tab-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 8px 12px;
+  cursor: pointer;
+  color: var(--muted);
+  transition: color 0.2s;
+  border: none;
+  background: none;
+  font-family: var(--sans);
+}
+
+.m-tab-item.m-active {
+  color: var(--accent);
+}
+
+.m-tab-item svg {
+  width: 20px;
+  height: 20px;
+}
+
+.m-tab-label {
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.5px;
+  font-family: 'Inter', -apple-system, sans-serif;
+}
+
+/* ===== 高亮卡片 ===== */
+.m-highlight-card {
+  background: var(--accent-light);
+  padding: 16px;
+  border-radius: 8px;
+}
+
+.m-highlight-text {
+  font-family: var(--serif);
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--accent);
+  line-height: 1.75;
+}
+
+/* ===== 下一概念CTA ===== */
+.m-next-cta {
+  background: var(--card);
+  border: 1px solid var(--border);
+  padding: 16px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+}
+
+.m-next-cta-left {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.m-next-cta-label {
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.m-next-cta-title {
+  font-family: var(--serif);
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+/* ===== 标注卡片 ===== */
+.m-mark-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.m-mark-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.m-mark-badge {
+  display: inline-flex;
+  padding: 2px 8px;
+  background: var(--accent);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 500;
+  border-radius: 8px;
+}
+
+.m-mark-concept {
+  font-family: var(--serif);
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.m-mark-quote {
+  font-size: 14px;
+  line-height: 1.7;
+  color: var(--text);
+}
+
+.m-mark-time {
+  font-size: 12px;
+  color: var(--muted);
+}
+
+/* ===== 搜索栏 ===== */
+.m-search-bar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 20px;
+}
+
+.m-search-input-wrap {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 18px;
+}
+
+.m-search-input-wrap input {
+  flex: 1;
+  border: none;
+  background: none;
+  font-size: 14px;
+  color: var(--text);
+  outline: none;
+  font-family: var(--sans);
+}
+
+.m-search-input-wrap input::placeholder {
+  color: var(--muted);
+}
+
+/* ===== 标签 ===== */
+.m-tag {
+  display: inline-flex;
+  padding: 6px 12px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  font-size: 13px;
+  color: var(--text);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.m-tag:active {
+  background: var(--accent-light);
+  border-color: var(--accent);
+}
+
+/* ===== 搜索结果卡片 ===== */
+.m-result-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* ===== 维度分隔页 ===== */
+.m-divider-screen {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+  text-align: center;
+  gap: 32px;
+}
+
+.m-progress-dots {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+}
+
+.m-progress-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--border);
+}
+
+.m-progress-dot.m-active {
+  background: var(--accent);
+}
+
+.m-complete-mark {
+  font-size: 13px;
+  color: var(--muted);
+  letter-spacing: 4px;
+  font-weight: 500;
+}
+
+/* ===== 网络流程图 ===== */
+.m-network-node {
+  background: var(--card);
+  border: 1px solid var(--border);
+  padding: 16px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.m-node-number {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--accent);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 15px;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
+.m-node-text {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.m-node-title {
+  font-family: var(--serif);
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.m-node-desc {
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.m-network-arrow {
+  display: flex;
+  justify-content: center;
+  padding: 4px 0;
+}
+
+.m-network-arrow svg {
+  width: 24px;
+  height: 24px;
+  color: var(--accent);
+}
+
+.m-feedback-arrow {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 0;
+}
+
+.m-feedback-text {
+  font-size: 12px;
+  color: var(--accent);
+  text-align: center;
+}
+
+/* ===== 批注输入 ===== */
+.m-annotation-screen .m-content-area {
+  padding-top: 16px;
+}
+
+.m-quote-preview {
+  background: #F5F5F4;
+  padding: 16px;
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+body.night .m-quote-preview {
+  background: #2A2F38;
+}
+
+.m-quote-preview-label {
+  font-size: 12px;
+  color: var(--muted);
+  font-weight: 500;
+}
+
+.m-quote-preview-text {
+  font-family: var(--serif);
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--accent);
+  line-height: 1.7;
+}
+
+.m-input-box {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 16px;
+  min-height: 160px;
+}
+
+.m-input-box textarea {
+  width: 100%;
+  border: none;
+  background: none;
+  font-size: 15px;
+  line-height: 1.75;
+  color: var(--text);
+  outline: none;
+  resize: none;
+  font-family: var(--sans);
+}
+
+.m-input-box textarea::placeholder {
+  color: var(--muted);
+}
+
+.m-tag-row {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.m-tag-select {
+  display: inline-flex;
+  padding: 6px 12px;
+  background: var(--accent-light);
+  border-radius: 16px;
+  font-size: 13px;
+  color: var(--accent);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.m-tag-select.m-active {
+  background: var(--accent);
+  color: #fff;
+}
+
+/* ===== 设置页 ===== */
+.m-settings-section {
+  background: var(--card);
+  border: 1px solid var(--border);
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.m-settings-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.m-settings-label {
+  font-size: 15px;
+  color: var(--text);
+}
+
+.m-font-options {
+  display: flex;
+  gap: 12px;
+}
+
+.m-font-btn {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  background: var(--card);
+  color: var(--muted);
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.m-font-btn.m-active {
+  background: var(--accent);
+  color: #fff;
+  border-color: var(--accent);
+}
+
+/* 开关 */
+.m-toggle {
+  width: 48px;
+  height: 28px;
+  border-radius: 14px;
+  background: var(--border);
+  position: relative;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.m-toggle.on {
+  background: var(--accent);
+}
+
+.m-toggle-knob {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: #fff;
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  transition: transform 0.3s;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.15);
+}
+
+.m-toggle.on .m-toggle-knob {
+  transform: translateX(20px);
+}
+
+.m-about-text {
+  font-size: 13px;
+  color: var(--muted);
+  line-height: 1.7;
+}
+
+/* ===== 四视角标签 ===== */
+.m-perspective-tabs {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+
+.m-perspective-tabs::-webkit-scrollbar { display: none; }
+
+.m-perspective-tab {
+  padding: 8px 16px;
+  border-radius: 18px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.2s;
+  background: var(--card);
+  border: 1px solid var(--border);
+  color: var(--muted);
+}
+
+.m-perspective-tab.m-active {
+  background: var(--accent);
+  color: #fff;
+  border-color: var(--accent);
+}
+
+.m-perspective-content {
+  display: none;
+}
+
+.m-perspective-content.m-active {
+  display: block;
+  animation: fadeIn 0.3s ease;
+}
+
+/* ===== 章节标题 ===== */
+.m-section-title {
+  font-family: var(--serif);
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 12px;
+}
+
+/* ===== 通用间距 ===== */
+.m-gap-6 { gap: 6px; }
+.m-gap-8 { gap: 8px; }
+.m-gap-12 { gap: 12px; }
+.m-gap-16 { gap: 16px; }
+.m-gap-20 { gap: 20px; }
+.m-gap-24 { gap: 24px; }
+.m-gap-28 { gap: 28px; }
+.m-gap-32 { gap: 32px; }
+
+.m-mt-8 { margin-top: 8px; }
+.m-mt-12 { margin-top: 12px; }
+.m-mt-16 { margin-top: 16px; }
+.m-mt-20 { margin-top: 20px; }
+.m-mt-24 { margin-top: 24px; }
+.m-mt-28 { margin-top: 28px; }
+.m-mt-32 { margin-top: 32px; }
+.m-mt-40 { margin-top: 40px; }
+
+.m-flex { display: flex; }
+.m-flex-col { flex-direction: column; }
+.m-items-center { align-items: center; }
+.m-justify-center { justify-content: center; }
+.m-justify-between { justify-content: space-between; }
+
+.m-text-center { text-align: center; }
+
+/* ===== 滚动条美化 ===== */
+::-webkit-scrollbar { width: 0; height: 0; }
+
+/* ===== 选中样式 ===== */
+::selection {
+  background: var(--accent-light);
+  color: var(--accent);
+}
+
+
+/* ===== 响应式切换 ===== */
+@media (max-width: 768px) {
+  #pc-view { display: none !important; }
+  #mobile-view { display: block !important; }
+}
 </style>
 </head>
 <body>
+
+<!-- PC版视图 -->
+<div id="pc-view">
+
 <div id="progressBar"></div>
 <header class="topnav">
 <div class="nav-brand"><span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M12 2v20M2 12h20"/><path d="M12 5l-5 5 5 5 5-5z"/></svg></span>如是·觉醒·改命</div>
@@ -403,7 +1314,8 @@ body.night .modal-btn.primary { color: #1A1D23; }
 <button class="left-bar-item" data-ch="end" data-label="改命"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 2v20M2 12h20"/><path d="M6 8l6-6 6 6M6 16l6 6 6-6"/></svg><span class="lb-label">改命</span></button>
 </div>
 <div id="leftPanel">
-<div class="panel-header"><span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M12 2v20M2 12h20"/><path d="M12 5l-5 5 5 5 5-5z"/></svg></span><span class="ph-title" id="panelTitle">内容导航</span></div>
+<div class="sheet-handle" aria-hidden="true"></div>
+<div class="panel-header"><span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M12 2v20M2 12h20"/><path d="M12 5l-5 5 5 5 5-5z"/></svg></span><span class="ph-title" id="panelTitle">内容导航</span><button class="panel-close" id="panelClose" aria-label="关闭"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg></button></div>
 <div id="panelContent"></div>
 </div>
 <button class="mobile-menu" id="mobileMenu">☰</button>
@@ -1522,6 +2434,21 @@ body.night .modal-btn.primary { color: #1A1D23; }
       });
     });
     panelOverlay.addEventListener('click', closePanel);
+    // 关闭按钮（手机端抽屉）
+    const panelCloseBtn = document.getElementById('panelClose');
+    if (panelCloseBtn) panelCloseBtn.addEventListener('click', closePanel);
+    // 下滑关闭：在拖拽条/面板标题区监听触摸下滑手势
+    const swipeZone = document.querySelector('.sheet-handle') || leftPanel.querySelector('.panel-header');
+    if (swipeZone) {
+      let touchStartY = null;
+      swipeZone.addEventListener('touchstart', (e) => { touchStartY = e.touches[0].clientY; }, { passive: true });
+      swipeZone.addEventListener('touchmove', (e) => {
+        if (touchStartY === null) return;
+        const dy = e.touches[0].clientY - touchStartY;
+        if (dy > 56) { closePanel(); touchStartY = null; }
+      }, { passive: true });
+      swipeZone.addEventListener('touchend', () => { touchStartY = null; }, { passive: true });
+    }
     mobileFab.addEventListener('click', () => {
       mobileFabMenu.classList.toggle('open');
       mobileOverlay.classList.toggle('active', mobileFabMenu.classList.contains('open'));
@@ -1864,6 +2791,737 @@ body.night .modal-btn.primary { color: #1A1D23; }
   <button class="mobile-fab-item" id="mobileBtnNote"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6"/><path d="M16 13H8"/><path d="M16 17H8"/><path d="M10 9H8"/></svg><span>笔记</span></button>
   <button class="mobile-fab-item" id="mobileBtnHistory"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 116.92-10.67"/></svg><span>历史</span></button>
   <button class="mobile-fab-item" id="mobileBtnTools"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-2 2 2 2 0 01-2-2v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 01-2-2 2 2 0 012-2h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 012-2 2 2 0 012 2v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 012 2 2 2 0 01-2 2h-.09a1.65 1.65 0 00-1.51 1z"/></svg><span>工具</span></button>
+</div>
+
+
+</div>
+
+<!-- 移动端视图 -->
+<div id="mobile-view">
+<div id="m-app">
+
+
+<!-- ========== Screen 1: 首页 ========== -->
+<div class="m-screen m-active" id="screen-home">
+  <div class="m-status-bar">
+    <span>9:41</span>
+    <div class="m-status-icons">
+      <svg width="16" height="12" viewBox="0 0 16 12"><rect x="0" y="8" width="2.5" height="4" rx="0.5" fill="currentColor"/><rect x="3.5" y="6" width="2.5" height="6" rx="0.5" fill="currentColor"/><rect x="7" y="3" width="2.5" height="9" rx="0.5" fill="currentColor"/><rect x="10.5" y="0" width="2.5" height="12" rx="0.5" fill="currentColor"/></svg>
+      <svg width="16" height="12" viewBox="0 0 16 12" style="margin-left:4px"><path d="M8 2C5 2 2.5 3.2 1 5L2.5 6.5C3.7 5.2 5.7 4.2 8 4.2s4.3 1 5.5 2.3L15 5C13.5 3.2 11 2 8 2z" fill="currentColor"/><circle cx="8" cy="10" r="1" fill="currentColor"/></svg>
+      <svg width="24" height="12" viewBox="0 0 24 12" style="margin-left:4px"><rect x="1" y="1" width="20" height="10" rx="2.5" fill="none" stroke="currentColor" stroke-width="1" opacity="0.35"/><rect x="3" y="3" width="16" height="6" rx="1" fill="currentColor"/><rect x="22" y="4" width="1.5" height="4" rx="0.75" fill="currentColor" opacity="0.35"/></svg>
+    </div>
+  </div>
+
+  <div class="m-content-area">
+    <div class="m-flex m-flex-col m-gap-6">
+      <div class="m-text-title">数字禅房</div>
+      <div class="m-text-subtitle">太晋先生名言实录 · 深度研究报告</div>
+    </div>
+
+    <div class="m-hero-quote">
+      <div class="m-hero-quote-text">真实是一切修道的前提。</div>
+      <div class="m-hero-quote-attr">—— 太晋先生</div>
+    </div>
+
+    <div class="m-flex m-flex-col m-gap-12">
+      <div class="m-card" onclick="mGoToScreen('screen-dim1')">
+        <div class="m-card-num">一</div>
+        <div class="m-card-content">
+          <div class="m-card-title">道法溯源</div>
+          <div class="m-card-sub">核心概念的跨学科对比</div>
+        </div>
+      </div>
+      <div class="m-card" onclick="mGoToScreen('screen-network')">
+        <div class="m-card-num">二</div>
+        <div class="m-card-content">
+          <div class="m-card-title">动态有机网络</div>
+          <div class="m-card-sub">概念之间的内在运转逻辑</div>
+        </div>
+      </div>
+      <div class="m-card" onclick="mGoToScreen('screen-dim3')">
+        <div class="m-card-num">三</div>
+        <div class="m-card-content">
+          <div class="m-card-title">破妄显真</div>
+          <div class="m-card-sub">对治现实人生的处方</div>
+        </div>
+      </div>
+      <div class="m-card" onclick="mGoToScreen('screen-dim4')">
+        <div class="m-card-num">四</div>
+        <div class="m-card-content">
+          <div class="m-card-title">知行合一</div>
+          <div class="m-card-sub">从智慧到行动的落地指令</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ========== Screen 2: 维度一阅读页 ========== -->
+<div class="m-screen" id="screen-dim1">
+  <div class="m-status-bar">
+    <span>9:41</span>
+    <div class="m-status-icons">
+      <svg width="16" height="12" viewBox="0 0 16 12"><rect x="0" y="8" width="2.5" height="4" rx="0.5" fill="currentColor"/><rect x="3.5" y="6" width="2.5" height="6" rx="0.5" fill="currentColor"/><rect x="7" y="3" width="2.5" height="9" rx="0.5" fill="currentColor"/><rect x="10.5" y="0" width="2.5" height="12" rx="0.5" fill="currentColor"/></svg>
+      <svg width="16" height="12" viewBox="0 0 16 12" style="margin-left:4px"><path d="M8 2C5 2 2.5 3.2 1 5L2.5 6.5C3.7 5.2 5.7 4.2 8 4.2s4.3 1 5.5 2.3L15 5C13.5 3.2 11 2 8 2z" fill="currentColor"/><circle cx="8" cy="10" r="1" fill="currentColor"/></svg>
+      <svg width="24" height="12" viewBox="0 0 24 12" style="margin-left:4px"><rect x="1" y="1" width="20" height="10" rx="2.5" fill="none" stroke="currentColor" stroke-width="1" opacity="0.35"/><rect x="3" y="3" width="16" height="6" rx="1" fill="currentColor"/><rect x="22" y="4" width="1.5" height="4" rx="0.75" fill="currentColor" opacity="0.35"/></svg>
+    </div>
+  </div>
+
+  <div class="m-nav-header">
+    <div class="m-nav-back" onclick="mGoToScreen('screen-home')">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+    </div>
+    <div class="m-nav-title">维度一 · 道法溯源</div>
+  </div>
+
+  <div class="m-content-area">
+    <div class="m-deco-number">一</div>
+    <div class="m-text-heading m-mt-8">道法溯源</div>
+    <div class="m-text-caption m-mt-8">核心概念的跨学科对比</div>
+
+    <div class="m-text-body m-mt-24">
+      太晋先生将散落在佛、道、儒三家经典中的深层智慧，与现代科学最前沿的发现进行跨界对话，最终熔铸为一炉。
+    </div>
+
+    <div class="m-concept-card m-mt-24" onclick="mGoToScreen('screen-concept')">
+      <div class="m-concept-badge">概念一</div>
+      <div class="m-concept-title">如是</div>
+      <div class="m-concept-quote">"如是，如是，不外如是。"</div>
+    </div>
+
+    <div class="m-scripture-block m-mt-24">
+      <div class="m-scripture-line"></div>
+      <div class="m-text-quote">如是皆为吉，妄念皆为凶。</div>
+      <div class="m-scripture-line"></div>
+    </div>
+
+    <div class="m-next-cta m-mt-24" onclick="mGoToScreen('screen-concept')">
+      <div class="m-next-cta-left">
+        <div class="m-next-cta-label">下一概念</div>
+        <div class="m-next-cta-title">反者道之动</div>
+      </div>
+      <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M7 4l6 6-6 6"/></svg>
+    </div>
+  </div>
+</div>
+
+<!-- ========== Screen 3: 概念详情页 ========== -->
+<div class="m-screen" id="screen-concept">
+  <div class="m-status-bar">
+    <span>9:41</span>
+    <div class="m-status-icons">
+      <svg width="16" height="12" viewBox="0 0 16 12"><rect x="0" y="8" width="2.5" height="4" rx="0.5" fill="currentColor"/><rect x="3.5" y="6" width="2.5" height="6" rx="0.5" fill="currentColor"/><rect x="7" y="3" width="2.5" height="9" rx="0.5" fill="currentColor"/><rect x="10.5" y="0" width="2.5" height="12" rx="0.5" fill="currentColor"/></svg>
+      <svg width="16" height="12" viewBox="0 0 16 12" style="margin-left:4px"><path d="M8 2C5 2 2.5 3.2 1 5L2.5 6.5C3.7 5.2 5.7 4.2 8 4.2s4.3 1 5.5 2.3L15 5C13.5 3.2 11 2 8 2z" fill="currentColor"/><circle cx="8" cy="10" r="1" fill="currentColor"/></svg>
+      <svg width="24" height="12" viewBox="0 0 24 12" style="margin-left:4px"><rect x="1" y="1" width="20" height="10" rx="2.5" fill="none" stroke="currentColor" stroke-width="1" opacity="0.35"/><rect x="3" y="3" width="16" height="6" rx="1" fill="currentColor"/><rect x="22" y="4" width="1.5" height="4" rx="0.75" fill="currentColor" opacity="0.35"/></svg>
+    </div>
+  </div>
+
+  <div class="m-nav-header">
+    <div class="m-nav-back" onclick="mGoToScreen('screen-dim1')">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+    </div>
+    <div class="m-nav-title">概念详情</div>
+    <div class="m-nav-action" onclick="mGoToScreen('screen-annotation')">标注</div>
+  </div>
+
+  <div class="m-content-area">
+    <div class="m-concept-badge">概念一</div>
+    <div class="m-text-heading m-mt-12">如是</div>
+
+    <div class="m-flex m-flex-col m-gap-8 m-mt-20">
+      <div class="m-concept-quote">"如是，如是，不外如是。"</div>
+      <div class="m-concept-quote">"如是皆为吉，妄念皆为凶。"</div>
+      <div class="m-concept-quote">"如来——如本来，如本去。"</div>
+    </div>
+
+    <div class="m-perspective-tabs m-mt-24">
+      <div class="m-perspective-tab m-active" onclick="mSwitchPerspective(this, 'buddhist')">佛学</div>
+      <div class="m-perspective-tab" onclick="mSwitchPerspective(this, 'taoist')">道家</div>
+      <div class="m-perspective-tab" onclick="mSwitchPerspective(this, 'confucian')">儒家</div>
+      <div class="m-perspective-tab" onclick="mSwitchPerspective(this, 'science')">科学</div>
+    </div>
+
+    <div class="m-perspective-content m-active" id="buddhist">
+      <div class="m-section-title m-mt-24">佛学视角</div>
+      <div class="m-text-body m-mt-12">
+        「如是」一词在佛教经典中地位至高。《金刚经》开篇即言「如是我闻，一时，佛在舍卫国祇树给孤独园」，意为"我如实听佛所说"——不增不减、不扭曲、不演义。
+      </div>
+      <div class="m-highlight-card m-mt-20">
+        <div class="m-highlight-text">"应如是住，如是降伏其心"——这里的"如是"不再是副词，而是一种修行的方式、一种安住的境界。</div>
+      </div>
+      <div class="m-text-body m-mt-20">
+        六祖惠能《坛经》中，五祖为说《金刚经》，至「应无所住而生其心」，惠能言下大悟，说出五个「何期自性」，其中之一便是自性「本自具足」。太晋先生将这一脉络浓缩为「如是，如是，不外如是」——三个"如是"层层递进。
+      </div>
+    </div>
+
+    <div class="m-perspective-content" id="taoist">
+      <div class="m-section-title m-mt-24">道家视角</div>
+      <div class="m-text-body m-mt-12">
+        老子《道德经》虽无"如是"二字，但其核心精神正是「道法自然」——道不作任何人为的施加，只是让万物如其本来地存在、生长、消亡。
+      </div>
+      <div class="m-highlight-card m-mt-20">
+        <div class="m-highlight-text">「万物作焉而不辞，生而不有，为而不恃，功成而弗居」——这不是消极的放任，而是一种最深层的"如是"。</div>
+      </div>
+      <div class="m-text-body m-mt-20">
+        庄子更进一步，「天地与我并生，而万物与我为一」——个体意志消融后，剩下的就是如是观。太晋先生所言"如来——如本来，如本去"，正是以道家自然观来注解佛家的"如来"义。
+      </div>
+    </div>
+
+    <div class="m-perspective-content" id="confucian">
+      <div class="m-section-title m-mt-24">儒家视角</div>
+      <div class="m-text-body m-mt-12">
+        儒家讲「诚」。《中庸》言「诚者，天之道也；诚之者，人之道也」。朱熹注曰：「诚者，真实无妄之谓。」这个"诚"字，与佛家的"如是"在精神深处是同一回事——不加粉饰、不加评判地面对事物的本来面目。
+      </div>
+      <div class="m-highlight-card m-mt-20">
+        <div class="m-highlight-text">孔子「知之为知之，不知为不知，是知也」——也是如是精神的体现。</div>
+      </div>
+    </div>
+
+    <div class="m-perspective-content" id="science">
+      <div class="m-section-title m-mt-24">现代科学视角</div>
+      <div class="m-text-body m-mt-12">
+        现代正念疗法（MBSR）的核心技术，正是对"如是"的科学验证和操作化。乔恩·卡巴金1979年在麻省大学医学院创立正念减压疗法时，将其定义为「对当下经验的非评判性觉察」。
+      </div>
+      <div class="m-highlight-card m-mt-20">
+        <div class="m-highlight-text">"体感是信号，是你的习惯，学会把自己从感受中抽离"——精准对应正念疗法中的去中心化技术。</div>
+      </div>
+    </div>
+
+    <div class="m-next-cta m-mt-32" onclick="mGoToScreen('screen-dim1')">
+      <div class="m-next-cta-left">
+        <div class="m-next-cta-label">下一概念</div>
+        <div class="m-next-cta-title">反者道之动</div>
+      </div>
+      <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M7 4l6 6-6 6"/></svg>
+    </div>
+  </div>
+</div>
+
+<!-- ========== Screen 5: MARK 书签页 ========== -->
+<div class="m-screen" id="screen-marks">
+  <div class="m-status-bar">
+    <span>9:41</span>
+    <div class="m-status-icons">
+      <svg width="16" height="12" viewBox="0 0 16 12"><rect x="0" y="8" width="2.5" height="4" rx="0.5" fill="currentColor"/><rect x="3.5" y="6" width="2.5" height="6" rx="0.5" fill="currentColor"/><rect x="7" y="3" width="2.5" height="9" rx="0.5" fill="currentColor"/><rect x="10.5" y="0" width="2.5" height="12" rx="0.5" fill="currentColor"/></svg>
+      <svg width="16" height="12" viewBox="0 0 16 12" style="margin-left:4px"><path d="M8 2C5 2 2.5 3.2 1 5L2.5 6.5C3.7 5.2 5.7 4.2 8 4.2s4.3 1 5.5 2.3L15 5C13.5 3.2 11 2 8 2z" fill="currentColor"/><circle cx="8" cy="10" r="1" fill="currentColor"/></svg>
+      <svg width="24" height="12" viewBox="0 0 24 12" style="margin-left:4px"><rect x="1" y="1" width="20" height="10" rx="2.5" fill="none" stroke="currentColor" stroke-width="1" opacity="0.35"/><rect x="3" y="3" width="16" height="6" rx="1" fill="currentColor"/><rect x="22" y="4" width="1.5" height="4" rx="0.75" fill="currentColor" opacity="0.35"/></svg>
+    </div>
+  </div>
+
+  <div class="m-nav-header">
+    <div class="m-nav-back" onclick="mGoToScreen('screen-home')">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+    </div>
+    <div class="m-nav-title">我的标注</div>
+  </div>
+
+  <div class="m-content-area">
+    <div class="m-mark-card">
+      <div class="m-mark-meta">
+        <div class="m-mark-badge">维度一</div>
+        <div class="m-mark-concept">如是</div>
+      </div>
+      <div class="m-mark-quote">"应如是住，如是降伏其心"——这里的"如是"不再是副词，而是一种修行的方式、一种安住的境界。</div>
+      <div class="m-mark-time">今天 14:32</div>
+    </div>
+
+    <div class="m-mark-card m-mt-16">
+      <div class="m-mark-meta">
+        <div class="m-mark-badge">维度二</div>
+        <div class="m-mark-concept">反者道之动</div>
+      </div>
+      <div class="m-mark-quote">"生由克入，质变必须克，量变只需生。"——高手最常做的是"等待"。</div>
+      <div class="m-mark-time">昨天 21:15</div>
+    </div>
+  </div>
+</div>
+
+<!-- ========== Screen 6: 搜索页面 ========== -->
+<div class="m-screen" id="screen-search">
+  <div class="m-status-bar">
+    <span>9:41</span>
+    <div class="m-status-icons">
+      <svg width="16" height="12" viewBox="0 0 16 12"><rect x="0" y="8" width="2.5" height="4" rx="0.5" fill="currentColor"/><rect x="3.5" y="6" width="2.5" height="6" rx="0.5" fill="currentColor"/><rect x="7" y="3" width="2.5" height="9" rx="0.5" fill="currentColor"/><rect x="10.5" y="0" width="2.5" height="12" rx="0.5" fill="currentColor"/></svg>
+      <svg width="16" height="12" viewBox="0 0 16 12" style="margin-left:4px"><path d="M8 2C5 2 2.5 3.2 1 5L2.5 6.5C3.7 5.2 5.7 4.2 8 4.2s4.3 1 5.5 2.3L15 5C13.5 3.2 11 2 8 2z" fill="currentColor"/><circle cx="8" cy="10" r="1" fill="currentColor"/></svg>
+      <svg width="24" height="12" viewBox="0 0 24 12" style="margin-left:4px"><rect x="1" y="1" width="20" height="10" rx="2.5" fill="none" stroke="currentColor" stroke-width="1" opacity="0.35"/><rect x="3" y="3" width="16" height="6" rx="1" fill="currentColor"/><rect x="22" y="4" width="1.5" height="4" rx="0.75" fill="currentColor" opacity="0.35"/></svg>
+    </div>
+  </div>
+
+  <div class="m-search-bar">
+    <div class="m-nav-back" onclick="mGoToScreen('screen-home')" style="position:static">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+    </div>
+    <div class="m-search-input-wrap">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" style="color:var(--muted);flex-shrink:0"><circle cx="7" cy="7" r="5"/><path d="M11 11l3 3" stroke-linecap="round"/></svg>
+      <input type="text" placeholder="搜索名言、概念或经文..." id="searchInput">
+    </div>
+  </div>
+
+  <div class="m-content-area">
+    <div class="m-flex m-flex-col m-gap-12">
+      <div class="m-text-caption" style="font-weight:500">搜索历史</div>
+      <div class="m-tag-row">
+        <div class="m-tag" onclick="mDoSearch('如是')">如是</div>
+        <div class="m-tag" onclick="mDoSearch('反者道之动')">反者道之动</div>
+        <div class="m-tag" onclick="mDoSearch('歇即菩提')">歇即菩提</div>
+      </div>
+    </div>
+
+    <div class="m-flex m-flex-col m-gap-12 m-mt-24">
+      <div class="m-text-caption" style="font-weight:500">搜索结果</div>
+      <div class="m-result-card">
+        <div class="m-mark-meta">
+          <div class="m-mark-badge">维度一</div>
+          <div class="m-mark-concept">如是</div>
+        </div>
+        <div class="m-mark-quote">"如是皆为吉，妄念皆为凶。"——当你诚实地面对当下，你就在天道之中。</div>
+      </div>
+      <div class="m-result-card">
+        <div class="m-mark-meta">
+          <div class="m-mark-badge">维度一</div>
+          <div class="m-mark-concept">如来</div>
+        </div>
+        <div class="m-mark-quote">"如来——如本来，如本去。"——生死来去都是同一个"如"的展开。</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ========== Screen 7: 维度分隔页 ========== -->
+<div class="m-screen" id="screen-divider">
+  <div class="m-status-bar">
+    <span>9:41</span>
+    <div class="m-status-icons">
+      <svg width="16" height="12" viewBox="0 0 16 12"><rect x="0" y="8" width="2.5" height="4" rx="0.5" fill="currentColor"/><rect x="3.5" y="6" width="2.5" height="6" rx="0.5" fill="currentColor"/><rect x="7" y="3" width="2.5" height="9" rx="0.5" fill="currentColor"/><rect x="10.5" y="0" width="2.5" height="12" rx="0.5" fill="currentColor"/></svg>
+      <svg width="16" height="12" viewBox="0 0 16 12" style="margin-left:4px"><path d="M8 2C5 2 2.5 3.2 1 5L2.5 6.5C3.7 5.2 5.7 4.2 8 4.2s4.3 1 5.5 2.3L15 5C13.5 3.2 11 2 8 2z" fill="currentColor"/><circle cx="8" cy="10" r="1" fill="currentColor"/></svg>
+      <svg width="24" height="12" viewBox="0 0 24 12" style="margin-left:4px"><rect x="1" y="1" width="20" height="10" rx="2.5" fill="none" stroke="currentColor" stroke-width="1" opacity="0.35"/><rect x="3" y="3" width="16" height="6" rx="1" fill="currentColor"/><rect x="22" y="4" width="1.5" height="4" rx="0.75" fill="currentColor" opacity="0.35"/></svg>
+    </div>
+  </div>
+
+  <div class="m-divider-screen">
+    <div class="m-progress-dots">
+      <div class="m-progress-dot m-active"></div>
+      <div class="m-progress-dot m-active"></div>
+      <div class="m-progress-dot"></div>
+      <div class="m-progress-dot"></div>
+    </div>
+
+    <div class="m-deco-number" style="font-size:80px;opacity:0.12">二</div>
+    <div class="m-complete-mark">本维度完</div>
+    <div class="m-text-heading">动态有机网络</div>
+    <div class="m-text-body" style="color:var(--muted);text-align:center;max-width:280px">
+      这些概念并非孤立的名句，而是一个六节点双循环网络中的有机组件。
+    </div>
+
+    <div class="m-card" style="max-width:320px;width:100%" onclick="mGoToScreen('screen-network')">
+      <div class="m-card-content">
+        <div class="m-text-caption" style="text-align:center">下一维度</div>
+        <div class="m-card-title" style="text-align:center">破妄显真</div>
+        <div class="m-card-sub" style="text-align:center">对治现实人生的处方</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ========== Screen 9: 动态有机网络 ========== -->
+<div class="m-screen" id="screen-network">
+  <div class="m-status-bar">
+    <span>9:41</span>
+    <div class="m-status-icons">
+      <svg width="16" height="12" viewBox="0 0 16 12"><rect x="0" y="8" width="2.5" height="4" rx="0.5" fill="currentColor"/><rect x="3.5" y="6" width="2.5" height="6" rx="0.5" fill="currentColor"/><rect x="7" y="3" width="2.5" height="9" rx="0.5" fill="currentColor"/><rect x="10.5" y="0" width="2.5" height="12" rx="0.5" fill="currentColor"/></svg>
+      <svg width="16" height="12" viewBox="0 0 16 12" style="margin-left:4px"><path d="M8 2C5 2 2.5 3.2 1 5L2.5 6.5C3.7 5.2 5.7 4.2 8 4.2s4.3 1 5.5 2.3L15 5C13.5 3.2 11 2 8 2z" fill="currentColor"/><circle cx="8" cy="10" r="1" fill="currentColor"/></svg>
+      <svg width="24" height="12" viewBox="0 0 24 12" style="margin-left:4px"><rect x="1" y="1" width="20" height="10" rx="2.5" fill="none" stroke="currentColor" stroke-width="1" opacity="0.35"/><rect x="3" y="3" width="16" height="6" rx="1" fill="currentColor"/><rect x="22" y="4" width="1.5" height="4" rx="0.75" fill="currentColor" opacity="0.35"/></svg>
+    </div>
+  </div>
+
+  <div class="m-nav-header">
+    <div class="m-nav-back" onclick="mGoToScreen('screen-home')">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+    </div>
+    <div class="m-nav-title">动态有机网络</div>
+  </div>
+
+  <div class="m-content-area">
+    <div class="m-network-node">
+      <div class="m-node-number">1</div>
+      <div class="m-node-text">
+        <div class="m-node-title">如是</div>
+        <div class="m-node-desc">觉醒启动，如实接纳当下</div>
+      </div>
+    </div>
+    <div class="m-network-arrow">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12l7 7 7-7"/></svg>
+    </div>
+    <div class="m-network-node">
+      <div class="m-node-number">2</div>
+      <div class="m-node-text">
+        <div class="m-node-title">破除贪嗔痴</div>
+        <div class="m-node-desc">系统净化，清除情绪缓存</div>
+      </div>
+    </div>
+    <div class="m-network-arrow">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12l7 7 7-7"/></svg>
+    </div>
+    <div class="m-network-node">
+      <div class="m-node-number">3</div>
+      <div class="m-node-text">
+        <div class="m-node-title">体认无我</div>
+        <div class="m-node-desc">身份重构，放下自我执着</div>
+      </div>
+    </div>
+    <div class="m-network-arrow">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12l7 7 7-7"/></svg>
+    </div>
+    <div class="m-network-node">
+      <div class="m-node-number">4</div>
+      <div class="m-node-text">
+        <div class="m-node-title">掌握反者道之动</div>
+        <div class="m-node-desc">规律导航，理解周期律</div>
+      </div>
+    </div>
+    <div class="m-network-arrow">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12l7 7 7-7"/></svg>
+    </div>
+    <div class="m-network-node">
+      <div class="m-node-number">5</div>
+      <div class="m-node-text">
+        <div class="m-node-title">借假修真</div>
+        <div class="m-node-desc">现象实修，借事炼心</div>
+      </div>
+    </div>
+    <div class="m-network-arrow">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12l7 7 7-7"/></svg>
+    </div>
+    <div class="m-network-node">
+      <div class="m-node-number">6</div>
+      <div class="m-node-text">
+        <div class="m-node-title">改命</div>
+        <div class="m-node-desc">系统升级，螺旋上升</div>
+      </div>
+    </div>
+    <div class="m-feedback-arrow">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="3 2"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
+      <div class="m-feedback-text">反哺 · 升级后的系统回到觉醒节点，形成正反馈循环</div>
+    </div>
+  </div>
+</div>
+
+<!-- ========== Screen 10: 批注输入 ========== -->
+<div class="m-screen m-annotation-screen" id="screen-annotation">
+  <div class="m-status-bar">
+    <span>9:41</span>
+    <div class="m-status-icons">
+      <svg width="16" height="12" viewBox="0 0 16 12"><rect x="0" y="8" width="2.5" height="4" rx="0.5" fill="currentColor"/><rect x="3.5" y="6" width="2.5" height="6" rx="0.5" fill="currentColor"/><rect x="7" y="3" width="2.5" height="9" rx="0.5" fill="currentColor"/><rect x="10.5" y="0" width="2.5" height="12" rx="0.5" fill="currentColor"/></svg>
+      <svg width="16" height="12" viewBox="0 0 16 12" style="margin-left:4px"><path d="M8 2C5 2 2.5 3.2 1 5L2.5 6.5C3.7 5.2 5.7 4.2 8 4.2s4.3 1 5.5 2.3L15 5C13.5 3.2 11 2 8 2z" fill="currentColor"/><circle cx="8" cy="10" r="1" fill="currentColor"/></svg>
+      <svg width="24" height="12" viewBox="0 0 24 12" style="margin-left:4px"><rect x="1" y="1" width="20" height="10" rx="2.5" fill="none" stroke="currentColor" stroke-width="1" opacity="0.35"/><rect x="3" y="3" width="16" height="6" rx="1" fill="currentColor"/><rect x="22" y="4" width="1.5" height="4" rx="0.75" fill="currentColor" opacity="0.35"/></svg>
+    </div>
+  </div>
+
+  <div class="m-nav-header">
+    <div class="m-nav-back" onclick="mGoToScreen('screen-concept')">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
+    </div>
+    <div class="m-nav-title">添加标注</div>
+    <div class="m-nav-action" onclick="mSubmitAnnotation()">完成</div>
+  </div>
+
+  <div class="m-content-area">
+    <div class="m-quote-preview">
+      <div class="m-quote-preview-label">引用段落</div>
+      <div class="m-quote-preview-text">"应如是住，如是降伏其心"——这里的"如是"不再是副词，而是一种修行的方式、一种安住的境界。</div>
+    </div>
+
+    <div class="m-flex m-flex-col m-gap-8 m-mt-24">
+      <div class="m-text-caption" style="font-weight:500">写下你的感悟</div>
+      <div class="m-input-box">
+        <textarea placeholder="在此输入你的理解和感悟..." rows="5"></textarea>
+      </div>
+    </div>
+
+    <div class="m-flex m-flex-col m-gap-8 m-mt-24">
+      <div class="m-text-caption" style="font-weight:500">添加标签（可选）</div>
+      <div class="m-tag-row">
+        <div class="m-tag-select m-active">佛学</div>
+        <div class="m-tag-select">感悟</div>
+        <div class="m-tag-select">心法</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ========== Screen 11: 设置页 ========== -->
+<div class="m-screen" id="screen-settings">
+  <div class="m-status-bar">
+    <span>9:41</span>
+    <div class="m-status-icons">
+      <svg width="16" height="12" viewBox="0 0 16 12"><rect x="0" y="8" width="2.5" height="4" rx="0.5" fill="currentColor"/><rect x="3.5" y="6" width="2.5" height="6" rx="0.5" fill="currentColor"/><rect x="7" y="3" width="2.5" height="9" rx="0.5" fill="currentColor"/><rect x="10.5" y="0" width="2.5" height="12" rx="0.5" fill="currentColor"/></svg>
+      <svg width="16" height="12" viewBox="0 0 16 12" style="margin-left:4px"><path d="M8 2C5 2 2.5 3.2 1 5L2.5 6.5C3.7 5.2 5.7 4.2 8 4.2s4.3 1 5.5 2.3L15 5C13.5 3.2 11 2 8 2z" fill="currentColor"/><circle cx="8" cy="10" r="1" fill="currentColor"/></svg>
+      <svg width="24" height="12" viewBox="0 0 24 12" style="margin-left:4px"><rect x="1" y="1" width="20" height="10" rx="2.5" fill="none" stroke="currentColor" stroke-width="1" opacity="0.35"/><rect x="3" y="3" width="16" height="6" rx="1" fill="currentColor"/><rect x="22" y="4" width="1.5" height="4" rx="0.75" fill="currentColor" opacity="0.35"/></svg>
+    </div>
+  </div>
+
+  <div class="m-nav-header">
+    <div class="m-nav-back" onclick="mGoToScreen('screen-home')">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+    </div>
+    <div class="m-nav-title">设置</div>
+  </div>
+
+  <div class="m-content-area">
+    <div class="m-settings-section">
+      <div class="m-settings-label" style="font-weight:500">字体大小</div>
+      <div class="m-font-options">
+        <div class="m-font-btn" onclick="mSetFontSize('small')">小</div>
+        <div class="m-font-btn m-active" onclick="mSetFontSize('medium')">中</div>
+        <div class="m-font-btn" onclick="mSetFontSize('large')">大</div>
+      </div>
+    </div>
+
+    <div class="m-settings-section m-mt-16">
+      <div class="m-settings-row">
+        <div class="m-settings-label">夜间模式</div>
+        <div class="m-toggle" id="nightToggle" onclick="mToggleNightMode()">
+          <div class="m-toggle-knob"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="m-settings-section m-mt-16">
+      <div class="m-settings-row">
+        <div class="m-settings-label">重置阅读进度</div>
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="color:var(--muted)"><path d="M7 4l6 6-6 6"/></svg>
+      </div>
+    </div>
+
+    <div class="m-settings-section m-mt-16">
+      <div class="m-settings-label">关于</div>
+      <div class="m-about-text m-mt-8">
+        数字禅房 v6.0<br>
+        太晋先生名言实录 · 深度研究报告
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ========== Screen 3: 破妄显真 ========== -->
+<div class="m-screen" id="screen-dim3">
+  <div class="m-status-bar">
+    <span>9:41</span>
+    <div class="m-status-icons">
+      <svg width="16" height="12" viewBox="0 0 16 12"><rect x="0" y="8" width="2.5" height="4" rx="0.5" fill="currentColor"/><rect x="3.5" y="6" width="2.5" height="6" rx="0.5" fill="currentColor"/><rect x="7" y="3" width="2.5" height="9" rx="0.5" fill="currentColor"/><rect x="10.5" y="0" width="2.5" height="12" rx="0.5" fill="currentColor"/></svg>
+      <svg width="16" height="12" viewBox="0 0 16 12" style="margin-left:4px"><path d="M8 2C5 2 2.5 3.2 1 5L2.5 6.5C3.7 5.2 5.7 4.2 8 4.2s4.3 1 5.5 2.3L15 5C13.5 3.2 11 2 8 2z" fill="currentColor"/><circle cx="8" cy="10" r="1" fill="currentColor"/></svg>
+      <svg width="24" height="12" viewBox="0 0 24 12" style="margin-left:4px"><rect x="1" y="1" width="20" height="10" rx="2.5" fill="none" stroke="currentColor" stroke-width="1" opacity="0.35"/><rect x="3" y="3" width="16" height="6" rx="1" fill="currentColor"/><rect x="22" y="4" width="1.5" height="4" rx="0.75" fill="currentColor" opacity="0.35"/></svg>
+    </div>
+  </div>
+
+  <div class="m-nav-header">
+    <div class="m-nav-back" onclick="mGoToScreen('screen-home')">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+    </div>
+    <div class="m-nav-title">维度三 · 破妄显真</div>
+  </div>
+
+  <div class="m-content-area">
+    <div class="m-deco-number">三</div>
+    <div class="m-text-heading m-mt-8">破妄显真</div>
+    <div class="m-text-caption m-mt-8">对治现实人生的处方</div>
+
+    <div class="m-scripture-block m-mt-24">
+      <div class="m-scripture-line"></div>
+      <div class="m-text-quote">改命即改念。</div>
+      <div class="m-scripture-line"></div>
+    </div>
+
+    <div class="m-text-body m-mt-24">
+      学人呐，你今日翻开这篇文字，想必是心中有苦。那苦，像一根刺，扎在你的肉里，拔不出，按不下。你以为是那件事在折磨你——是那段关系，那笔钱财，那个你日日牵挂又日日担忧的人。可我今日要告诉你：<strong>折磨你的，从来不是那件事，而是你对那件事的"念"。</strong>
+    </div>
+
+    <div class="m-text-body m-mt-16">
+      太晋先生说得通透——<strong>"情绪创造了当下，而非手段。"</strong> 不是手段创造了当下，是你的情绪在创造当下。同样一件事，你今日心晴，它便不大；你今日心阴，它便如山。
+    </div>
+
+    <div class="m-concept-card m-mt-24">
+      <div class="m-concept-badge">核心处方</div>
+      <div class="m-concept-title">情绪创造了当下</div>
+      <div class="m-concept-quote">"情绪创造了当下，而非手段。"</div>
+    </div>
+
+    <div class="m-highlight-card m-mt-24">
+      <div class="m-highlight-text">"所有的生气，源于无力。"——愤怒 = 无力感的伪装。</div>
+    </div>
+
+    <div class="m-text-body m-mt-20">
+      太晋先生说：<strong>"障碍人的是'得失心'。"</strong> 你看，人世间多少痛苦，归根结底就是一个"得失"二字。你控制他人，是怕失去控制；你恐惧分离，是怕失去所爱；你焦虑未来，是怕失去已有的安稳。
+    </div>
+
+    <div class="m-highlight-card m-mt-20">
+      <div class="m-highlight-text">"爱是只要你好，全部接受，别无所求。情是控制、索取、占有。"</div>
+    </div>
+
+    <div class="m-text-body m-mt-20">
+      太晋先生说：<strong>"'如是'皆为吉，'妄念'皆为凶。"</strong> 什么叫"妄念"？妄念就是不符合真相的念头。担心、焦虑、后悔，这三个东西有一个共同点：它们都不是"当下"。
+    </div>
+  </div>
+</div>
+
+<!-- ========== Screen 4: 知行合一 ========== -->
+<div class="m-screen" id="screen-dim4">
+  <div class="m-status-bar">
+    <span>9:41</span>
+    <div class="m-status-icons">
+      <svg width="16" height="12" viewBox="0 0 16 12"><rect x="0" y="8" width="2.5" height="4" rx="0.5" fill="currentColor"/><rect x="3.5" y="6" width="2.5" height="6" rx="0.5" fill="currentColor"/><rect x="7" y="3" width="2.5" height="9" rx="0.5" fill="currentColor"/><rect x="10.5" y="0" width="2.5" height="12" rx="0.5" fill="currentColor"/></svg>
+      <svg width="16" height="12" viewBox="0 0 16 12" style="margin-left:4px"><path d="M8 2C5 2 2.5 3.2 1 5L2.5 6.5C3.7 5.2 5.7 4.2 8 4.2s4.3 1 5.5 2.3L15 5C13.5 3.2 11 2 8 2z" fill="currentColor"/><circle cx="8" cy="10" r="1" fill="currentColor"/></svg>
+      <svg width="24" height="12" viewBox="0 0 24 12" style="margin-left:4px"><rect x="1" y="1" width="20" height="10" rx="2.5" fill="none" stroke="currentColor" stroke-width="1" opacity="0.35"/><rect x="3" y="3" width="16" height="6" rx="1" fill="currentColor"/><rect x="22" y="4" width="1.5" height="4" rx="0.75" fill="currentColor" opacity="0.35"/></svg>
+    </div>
+  </div>
+
+  <div class="m-nav-header">
+    <div class="m-nav-back" onclick="mGoToScreen('screen-home')">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+    </div>
+    <div class="m-nav-title">维度四 · 知行合一</div>
+  </div>
+
+  <div class="m-content-area">
+    <div class="m-deco-number">四</div>
+    <div class="m-text-heading m-mt-8">知行合一</div>
+    <div class="m-text-caption m-mt-8">从智慧到行动的落地指令</div>
+
+    <div class="m-text-body m-mt-24">
+      四个维度，从理论到系统，从诊断到处方，从心法到行动——构成了一部完整的《太晋先生名言实录》深度研究报告。
+    </div>
+
+    <div class="m-concept-card m-mt-24">
+      <div class="m-concept-badge">每日觉照</div>
+      <div class="m-concept-title">三面镜子</div>
+      <div class="m-text-body" style="margin-top:8px;font-size:14px">
+        1. 我今天的念头是"如是"还是"妄念"？<br>
+        2. 我今天的情绪是在创造还是在反应？<br>
+        3. 我今天的行为是"无我利他"还是"得失计较"？
+      </div>
+    </div>
+
+    <div class="m-concept-card m-mt-16">
+      <div class="m-concept-badge">逆境急救</div>
+      <div class="m-concept-title">三根稻草</div>
+      <div class="m-text-body" style="margin-top:8px;font-size:14px">
+        1. 此刻我无力什么？（找到愤怒的根）<br>
+        2. 如果这是"如是"，我会如何看待？<br>
+        3. 三年后看这件事，它还重要吗？
+      </div>
+    </div>
+
+    <div class="m-scripture-block m-mt-24">
+      <div class="m-scripture-line"></div>
+      <div class="m-text-quote">人能参与的只有当下。<br>发一愿而改造世界是真实的。</div>
+      <div class="m-scripture-line"></div>
+    </div>
+
+    <div class="m-text-body m-mt-24" style="text-align:center;color:var(--muted);font-size:14px">
+      —— 太晋先生
+    </div>
+  </div>
+</div>
+
+<!-- ========== Tab Bar ========== -->
+<div class="m-tab-bar">
+  <button class="m-tab-item m-active" onclick="mSwitchTab('home')" data-mtab="home">
+    <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 9L10 3L17 9V16C17 16.5523 16.5523 17 16 17H12V12H8V17H4C3.44772 17 3 16.5523 3 16V9Z"/></svg>
+    <span class="m-tab-label">HOME</span>
+  </button>
+  <button class="m-tab-item" onclick="mSwitchTab('read')" data-mtab="read">
+    <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 3H9C9.55228 3 10 3.44772 10 4V17C10 16.4477 9.55228 16 9 16H4V3Z"/><path d="M16 3H11C10.4477 3 10 3.44772 10 4V17C10 16.4477 10.4477 16 11 16H16V3Z"/></svg>
+    <span class="m-tab-label">READ</span>
+  </button>
+  <button class="m-tab-item" onclick="mSwitchTab('mark')" data-mtab="mark">
+    <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M5 3H15V17L10 13L5 17V3Z"/></svg>
+    <span class="m-tab-label">MARK</span>
+  </button>
+  <button class="m-tab-item" onclick="mSwitchTab('night')" data-mtab="night">
+    <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M17 11.5C16.5 15 13.5 17.5 10 17.5C6.13401 17.5 3 14.366 3 10.5C3 7 5.5 4 9 3.5C8 5 7.5 6.5 7.5 8.5C7.5 12.0899 10.4101 15 14 15C15.5 15 16.5 14.5 17 11.5Z"/></svg>
+    <span class="m-tab-label">NIGHT</span>
+  </button>
+</div>
+
+
+</div>
+<script>
+
+// ===== 屏幕导航 =====
+function mGoToScreen(screenId) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('m-active'));
+  document.getElementById(screenId).classList.add('m-active');
+  window.scrollTo(0, 0);
+}
+
+// ===== Tab 切换 =====
+const tabMap = {
+  'home': 'screen-home',
+  'read': 'screen-dim1',
+  'mark': 'screen-marks',
+  'night': 'screen-settings'
+};
+
+function mSwitchTab(tab) {
+  document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('m-active'));
+  document.querySelector('[data-mtab="' + tab + '"]').classList.add('m-active');
+  if (tabMap[tab]) {
+    mGoToScreen(tabMap[tab]);
+  }
+}
+
+// ===== 视角切换 =====
+function mSwitchPerspective(el, id) {
+  document.querySelectorAll('.perspective-tab').forEach(t => t.classList.remove('m-active'));
+  el.classList.add('m-active');
+  document.querySelectorAll('.perspective-content').forEach(c => c.classList.remove('m-active'));
+  document.getElementById(id).classList.add('m-active');
+}
+
+// ===== 夜间模式 =====
+let isNight = false;
+function mToggleNightMode() {
+  isNight = !isNight;
+  document.body.classList.toggle('night', isNight);
+  document.getElementById('nightToggle').classList.toggle('on', isNight);
+  document.querySelector('meta[name="theme-color"]').setAttribute('content', isNight ? '#1A1D23' : '#FFFBEB');
+}
+
+// ===== 字体大小 =====
+function mSetFontSize(size) {
+  document.querySelectorAll('.font-size-btn').forEach(b => b.classList.remove('m-active'));
+  event.target.classList.add('m-active');
+  const sizes = { small: '14px', medium: '15px', large: '17px' };
+  document.documentElement.style.setProperty('--base-font', sizes[size]);
+  document.body.style.fontSize = sizes[size];
+}
+
+// ===== 搜索 =====
+function mDoSearch(keyword) {
+  document.getElementById('searchInput').value = keyword;
+}
+
+// ===== 批注标签 =====
+document.querySelectorAll('.tag-select').forEach(tag => {
+  tag.addEventListener('click', function() {
+    this.classList.toggle('m-active');
+  });
+});
+
+function mSubmitAnnotation() {
+  alert('标注已保存');
+  mGoToScreen('screen-concept');
+}
+
+// ===== 初始化 =====
+document.addEventListener('DOMContentLoaded', function() {
+  // 检查系统偏好
+  if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+    // 默认不自动切换，由用户控制
+  }
+});
+
+</script>
 </div>
 
 </body>
