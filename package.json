@@ -1,0 +1,12 @@
+{
+  "name": "taijin-chanfang",
+  "version": "1.0.0",
+  "description": "太晋先生名言实录・数字禅房",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
